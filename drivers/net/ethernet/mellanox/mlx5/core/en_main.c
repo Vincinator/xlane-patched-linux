@@ -1817,6 +1817,7 @@ static int mlx5e_set_tx_maxrate(struct net_device *dev, int index, u32 rate)
 }
 
 static int mlx5e_open_queues(struct mlx5e_channel *c,
+				 int ix,
 			     struct mlx5e_params *params,
 			     struct mlx5e_channel_param *cparam,
 				 int asgard_channel)
@@ -1878,7 +1879,7 @@ static int mlx5e_open_queues(struct mlx5e_channel *c,
 
 	/* Register Completion Queue at ASGARD Core */
 	if(asgard_channel > 0) {
-		asgard_mlx5_con_register_channel(priv->mdev->asgard_id, ix, c->rq.cq.mcq.cqn, c, asgard_channel);
+		asgard_mlx5_con_register_channel(c->priv->mdev->asgard_id, ix, c->rq.cq.mcq.cqn, c, asgard_channel);
 	}
 
 	err = mlx5e_open_xdpsq(c, params, &cparam->xdp_sq, NULL, &c->xdpsq, true);
@@ -1992,7 +1993,7 @@ static int mlx5e_open_channel(struct mlx5e_priv *priv, int ix,
 
 	netif_napi_add(netdev, &c->napi, mlx5e_napi_poll, 64);
 
-	err = mlx5e_open_queues(c, params, cparam, asgard_channel);
+	err = mlx5e_open_queues(c, ix, params, cparam, asgard_channel);
 	if (unlikely(err))
 		goto err_napi_del;
 
