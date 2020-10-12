@@ -16,5 +16,4 @@ config ASGARD_MODULE
 	depends on ASGARD_DRV
 	---help---
 	Asgard module includes the pacemaker, raft and a failure detector.
-
 	Also requires the asgard module sources.
