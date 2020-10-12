@@ -14,6 +14,7 @@ config ASGARD_MODULE
 	tristate "Enable Asgard Module"
 	default m
 	depends on ASGARD_DRV
-	---help---
-	Asgard module includes the pacemaker, raft and a failure detector.
-	Also requires the asgard module sources.
+	help
+	  Asgard module includes the pacemaker, raft and a failure detector.
+	
+	  Also requires the asgard module sources.
