@@ -46,6 +46,8 @@
 #include "lib/clock.h"
 #include "diag/fw_tracer.h"
 
+#include <asgard_con/asgard_con.h>
+
 enum {
 	MLX5_EQE_OWNER_INIT_VAL	= 0x1,
 };
@@ -147,6 +149,10 @@ static int mlx5_eq_comp_int(struct notifier_block *nb,
 		dma_rmb();
 		/* Assume (eqe->type) is always MLX5_EVENT_TYPE_COMP */
 		cqn = be32_to_cpu(eqe->data.comp.cqn) & 0xffffff;
+
+		/* ASGARD: Optimistical Timestamping */
+		ctype = asgard_mlx5_con_check_cqn(eq->dev->asgard_id, cqn);
+		asgard_mlx5_post_optimistical_timestamp(eq->dev->asgard_id, rdtsc(), ctype);
 
 		cq = mlx5_eq_cq_get(eq, cqn);
 		if (likely(cq)) {

@@ -1,0 +1,12 @@
+# asgard subsystem configuration
+#
+
+menuconfig ASGARD
+	bool "Enable ASGARD"
+	default y
+	help
+	  This enables the network submodule ASGARD
+
+config ASGARD_FOLLOWER_TEST
+        bool "Follower test"
+        depends on ASGARD && KUNIT

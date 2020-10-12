@@ -152,3 +152,10 @@ x509.genkey
 
 # Clang's compilation database file
 /compile_commands.json
+
+#
+# ASGARD ignores
+#
+
+# asgard lkm is maintained in separate repo
+net/asgard

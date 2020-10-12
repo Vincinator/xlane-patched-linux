@@ -670,6 +670,7 @@ struct mlx5_core_dev {
 	struct device *device;
 	enum mlx5_coredev_type coredev_type;
 	struct pci_dev	       *pdev;
+	int asgard_id;
 	/* sync pci state */
 	struct mutex		pci_status_mutex;
 	enum mlx5_pci_status	pci_status;

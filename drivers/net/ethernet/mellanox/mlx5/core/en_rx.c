@@ -55,6 +55,8 @@
 #include "en/params.h"
 #include "en/txrx.h"
 
+#include <asgard_con/asgard_con.h>
+
 static struct sk_buff *
 mlx5e_skb_from_cqe_mpwrq_linear(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
 				u16 cqe_bcnt, u32 head_offset, u32 page_idx);
@@ -1137,6 +1139,8 @@ mlx5e_skb_from_cqe_linear(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe,
 	struct sk_buff *skb;
 	void *va, *data;
 	u32 frag_size;
+	int ctype;
+	bool asgard_consumed;
 
 	va             = page_address(di->page) + wi->offset;
 	data           = va + rx_headroom;
@@ -1146,6 +1150,15 @@ mlx5e_skb_from_cqe_linear(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe,
 				      frag_size, DMA_FROM_DEVICE);
 	prefetchw(va); /* xdp_frame data area */
 	prefetch(data);
+
+	ctype = asgard_mlx5_con_check_ix(rq->channel->mdev->asgard_id, rq->channel->ix);
+
+	rcu_read_lock();
+	asgard_consumed = asgard_mlx5_post_payload(rq->channel->mdev->asgard_id, va, frag_size, rx_headroom, cqe_bcnt, ctype);
+	rcu_read_unlock();
+
+	if(asgard_consumed)
+		return NULL;
 
 	mlx5e_fill_xdp_buff(rq, va, rx_headroom, cqe_bcnt, &xdp);
 	if (mlx5e_xdp_handle(rq, di, &cqe_bcnt, &xdp))
@@ -1438,6 +1451,8 @@ mlx5e_skb_from_cqe_mpwrq_linear(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
 	struct sk_buff *skb;
 	void *va, *data;
 	u32 frag_size;
+	int ctype;
+	bool asgard_consumed;
 
 	/* Check packet size. Note LRO doesn't use linear SKB */
 	if (unlikely(cqe_bcnt > rq->hw_mtu)) {
@@ -1453,6 +1468,15 @@ mlx5e_skb_from_cqe_mpwrq_linear(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
 				      frag_size, DMA_FROM_DEVICE);
 	prefetchw(va); /* xdp_frame data area */
 	prefetch(data);
+
+	ctype = asgard_mlx5_con_check_ix(rq->channel->mdev->asgard_id, rq->channel->ix);
+
+	rcu_read_lock();
+	asgard_consumed = asgard_mlx5_post_payload(rq->channel->mdev->asgard_id, va, frag_size, rx_headroom, cqe_bcnt32, ctype);
+	rcu_read_unlock();
+
+	if(asgard_consumed)
+		return NULL;
 
 	mlx5e_fill_xdp_buff(rq, va, rx_headroom, cqe_bcnt32, &xdp);
 	if (mlx5e_xdp_handle(rq, di, &cqe_bcnt32, &xdp)) {
