@@ -134,6 +134,7 @@ static int mlx5_eq_comp_int(struct notifier_block *nb,
 	struct mlx5_eq *eq = &eq_comp->core;
 	struct mlx5_eqe *eqe;
 	int num_eqes = 0;
+	int ctype;
 	u32 cqn = -1;
 
 	eqe = next_eqe_sw(eq);
