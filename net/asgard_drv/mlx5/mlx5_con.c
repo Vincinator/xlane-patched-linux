@@ -8,7 +8,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Distributed Systems Group");
-MODULE_DESCRIPTION("SASSY MLX5 Connection");
+MODULE_DESCRIPTION("ASGARD MLX5 Connection");
 MODULE_VERSION("0.01");
 
 /* Initialized in asgard_mlx5_con_init*/
@@ -36,7 +36,7 @@ int register_asgard_at_nic(int ifindex,
 
 	asgard_id = get_asgard_id_by_ifindex(ifindex);
 
-	if(asgard_id < 0 ||asgard_id > SASSY_MLX5_DEVICES_LIMIT ) {
+	if(asgard_id < 0 ||asgard_id > ASGARD_MLX5_DEVICES_LIMIT ) {
 		printk(KERN_ERR"Could not get asgard id by ifindex %d\n", asgard_id);
 		return -ENODEV;
 	}
@@ -136,7 +136,7 @@ EXPORT_SYMBOL(asgard_mlx5_post_payload);
 
 int asgard_mlx5_con_check_ix(int asgard_id, int ix)
 {
-	if (asgard_id < 0 || asgard_id >= SASSY_MLX5_DEVICES_LIMIT) {
+	if (asgard_id < 0 || asgard_id >= ASGARD_MLX5_DEVICES_LIMIT) {
 		printk(KERN_INFO "[ASGARD] asgard_id was %d in %s\n", asgard_id, __FUNCTION__);
 		return 0;
 	}
@@ -161,7 +161,7 @@ EXPORT_SYMBOL(asgard_mlx5_con_check_ix);
 
 int asgard_mlx5_con_check_cqn(int asgard_id, u32 cqn)
 {
-	if (asgard_id < 0 || asgard_id >= SASSY_MLX5_DEVICES_LIMIT) {
+	if (asgard_id < 0 || asgard_id >= ASGARD_MLX5_DEVICES_LIMIT) {
 		printk(KERN_INFO "[ASGARD] asgard_id was %d in %s\n", asgard_id, __FUNCTION__);
 		return 0;
 	}
@@ -188,7 +188,7 @@ EXPORT_SYMBOL(asgard_mlx5_con_check_cqn);
 int asgard_mlx5_con_register_channel(int asgard_id, int ix, u32 cqn, void *c, int asgard_channel_type)
 {
 
-	if (asgard_id < 0 || asgard_id >= SASSY_MLX5_DEVICES_LIMIT) {
+	if (asgard_id < 0 || asgard_id >= ASGARD_MLX5_DEVICES_LIMIT) {
 		printk(KERN_INFO "[ASGARD] asgard_id was %d in %s\n", asgard_id, __FUNCTION__);
 		return 0;
 	}
@@ -225,10 +225,10 @@ static int __init asgard_mlx5_con_init(void)
 {
 	int i;
 
-	infos = kmalloc_array(SASSY_MLX5_DEVICES_LIMIT,
+	infos = kmalloc_array(ASGARD_MLX5_DEVICES_LIMIT,
 			      sizeof(struct asgard_mlx5_con_info *), GFP_KERNEL);
 
-	for (i = 0; i < SASSY_MLX5_DEVICES_LIMIT; i++) {
+	for (i = 0; i < ASGARD_MLX5_DEVICES_LIMIT; i++) {
 		infos[i] = kmalloc(sizeof(struct asgard_mlx5_con_info), GFP_KERNEL);
 	}
 	return 0;

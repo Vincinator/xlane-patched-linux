@@ -1,7 +1,7 @@
 #ifndef _ASGARD_CON_H
 #define _ASGARD_CON_H
 
-#define SASSY_MLX5_DEVICES_LIMIT 5 /* Number of allowed mlx5 devices that can connect to SASSY */
+#define ASGARD_MLX5_DEVICES_LIMIT 5 /* Number of allowed mlx5 devices that can connect to ASGARD */
 
 
 struct asgard_mlx5_con_info {

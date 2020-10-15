@@ -9,11 +9,11 @@ static int device_counter;
 
 int asgard_generate_next_id(void)
 {
-	if (device_counter >= SASSY_MLX5_DEVICES_LIMIT) {
+	if (device_counter >= ASGARD_MLX5_DEVICES_LIMIT) {
 		printk(KERN_INFO
 			"Reached Limit of maximum connected mlx5 devices.\n");
 		printk(KERN_INFO "Limit=%d, device_counter=%d\n",
-			    SASSY_MLX5_DEVICES_LIMIT, device_counter);
+			    ASGARD_MLX5_DEVICES_LIMIT, device_counter);
 		return -1;
 	}
 

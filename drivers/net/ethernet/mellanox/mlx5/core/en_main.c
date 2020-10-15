@@ -5517,7 +5517,7 @@ static void *mlx5e_add(struct mlx5_core_dev *mdev)
 
 	mlx5e_devlink_port_type_eth_set(priv);
 
-	/* Register MLX5 Driver at SASSY */
+	/* Register MLX5 Driver at ASGARD */
 	mdev->asgard_id = asgard_mlx5_con_register_device(netdev->ifindex);
 
 	mlx5e_dcbnl_init_app(priv);
