@@ -122,8 +122,13 @@ bool asgard_mlx5_post_payload(int asgard_id, void *va, u32 frag_size, u16 headro
 {
 	u8 *payload = (u8 *)va;
 
+
 	if(ctype == 0)
 		return false;
+	
+	if(infos[asgard_id]->asgard_alive == 0)
+		return false;
+
 
 	if(infos[asgard_id]->asgard_alive == 0)
 		return false;
