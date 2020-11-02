@@ -1,0 +1,11 @@
+#
+# Asgard Connection subsystem configuration
+#
+
+menuconfig ASGARD_DRV
+	bool "Enable ASGARD_DRV"
+	default y
+	help
+	  This enables ASGARD_DRV to use supported network cards.
+
+	  Asgard Driver is required to run the Asgard Module
