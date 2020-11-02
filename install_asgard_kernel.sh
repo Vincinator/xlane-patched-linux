@@ -29,7 +29,7 @@
 
     echo "Removing old Asgard Kernels..." &&
     sudo DEBIAN_FRONTEND=noninteractive dpkg --configure -a &&
-    sudo DEBIAN_FRONTEND=noninteractive apt-get purge 'linux-image-5.3.0-asgard-.*' -y || echo "..." &&
+    sudo DEBIAN_FRONTEND=noninteractive apt-get purge 'linux-image-5.9-asgard-.*' -y || echo "..." &&
     dpkg -l | grep asgard | awk '{print $2}' | xargs -n1 sudo apt purge -y || echo "..." &&
 
     echo "Install new Asgard Kernel..." &&
