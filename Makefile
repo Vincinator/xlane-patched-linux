@@ -491,7 +491,7 @@ LINUXINCLUDE    := \
 		-I$(objtree)/arch/$(SRCARCH)/include/generated \
 		$(if $(building_out_of_srctree),-I$(srctree)/include) \
 		-I$(objtree)/include \
-		-I$(srctree)/net/asgard_drv/common \
+		-I$(srctree)/drivers/asgarddrv/common \
 		$(USERINCLUDE)
 
 KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE
@@ -1530,12 +1530,6 @@ boards := $(wildcard $(srctree)/arch/$(SRCARCH)/configs/*_defconfig)
 boards := $(sort $(notdir $(boards)))
 board-dirs := $(dir $(wildcard $(srctree)/arch/$(SRCARCH)/configs/*/*_defconfig))
 board-dirs := $(sort $(notdir $(board-dirs:/=)))
-
-PHONY += asgard
-asgard-module: 
-	@echo  'asgard target'
-	cp net/asgard/Kconfig_kernelbuild net/asgard/Kconfig
-
 
 PHONY += help
 help:

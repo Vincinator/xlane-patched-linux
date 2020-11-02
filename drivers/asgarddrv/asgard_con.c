@@ -7,6 +7,7 @@
 
 static int device_counter;
 
+
 int asgard_generate_next_id(void)
 {
 	if (device_counter >= ASGARD_MLX5_DEVICES_LIMIT) {
