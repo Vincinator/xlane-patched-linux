@@ -1,8 +1,9 @@
-#/bin/bash
+#!/bin/bash
 
 # Exit on failure
 #set -e
 
+ASGARD_KERNEL_VERSION="asgard-5.9"
 
 {
     #cd asgard-bin/kernel
@@ -14,7 +15,7 @@
     CUR_INST_KERN_VER=$(echo $(uname -r) | cut -d"-" -f3) &&
 
     # Exit if Asgard Kernel Version is already installed
-    if ls *${CUR_INST_KERN_VER}* 1> /dev/null 2>&1; then
+    if [[ $CUR_INST_KERN_VER == *"$ASGARD_KERNEL_VERSION"* ]]; then
         echo "Asgard Kernel Version ${CUR_INST_KERN_VER} is already installed."
         exit 0
     fi
