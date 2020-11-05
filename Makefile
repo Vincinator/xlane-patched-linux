@@ -2,7 +2,7 @@
 VERSION = 5
 PATCHLEVEL = 9
 SUBLEVEL = 0
-EXTRAVERSION = -asgard$(shell git rev-parse --short=12 HEAD)
+EXTRAVERSION = -asgard-git-$(shell git rev-parse --short=12 HEAD)
 NAME = Kleptomaniac Octopus
 
 # *DOCUMENTATION*
