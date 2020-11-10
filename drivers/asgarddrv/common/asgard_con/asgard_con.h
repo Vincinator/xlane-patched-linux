@@ -17,6 +17,8 @@ struct asgard_mlx5_con_info {
 
 	void (*asgard_post_ts)(int, uint64_t, int);
 	void (*asgard_post_payload)(int, void *, u16, u32);
+	void (*asgard_force_quit)(void);
+
 };
 
 int asgard_generate_next_id(void);
@@ -29,6 +31,7 @@ int asgard_mlx5_con_check_cqn(int asgard_id, u32 cqn);
 void *asgard_mlx5_get_channel(int asgard_id);
 int asgard_mlx5_con_register_channel(int asgard_id, int ix, u32 cqn, void *c, int ctype);
 int asgard_mlx5_con_register_device(int ifindex);
+int asgard_mlx5_con_unregister_device(int ifindex);
 
 int register_asgard_at_nic(int asgard_id,
 				void (*asgard_post_ts)(int, uint64_t, int),

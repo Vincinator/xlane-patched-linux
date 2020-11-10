@@ -30,7 +30,8 @@ EXPORT_SYMBOL(get_asgard_id_by_ifindex);
 
 int register_asgard_at_nic(int ifindex,
 				void (*asgard_post_ts)(int, uint64_t, int),
-				void (*asgard_post_payload)(int, void *, u16, u32))
+				void (*asgard_post_payload)(int, void *, u16, u32),
+				void (*asgard_force_quite)(void))
 {
 	int asgard_id;
 
@@ -46,11 +47,55 @@ int register_asgard_at_nic(int ifindex,
 
 	infos[asgard_id]->asgard_post_ts = asgard_post_ts;
 	infos[asgard_id]->asgard_post_payload = asgard_post_payload;
+	infos[asgard_id]->asgard_force_quit = asgard_force_quite;
+
 	infos[asgard_id]->asgard_alive = 1;
 
 	return 0;
 }
 EXPORT_SYMBOL(register_asgard_at_nic);
+
+
+int asgard_mlx5_con_unregister_device(int ifindex)
+{
+	int asgard_id;
+
+
+	if(infos == NULL){
+		printk(KERN_ERR"[ASGARD] Connection Info is not setup..\n");
+		return -1;
+	}
+
+	printk(KERN_INFO"[ASGARD] Unregister mlx5 device with ifindex %d\n", ifindex, __FUNCTION__);
+
+	asgard_id = get_asgard_id_by_ifindex(ifindex);
+
+	if(asgard_id < 0) {
+		printk(KERN_INFO "[ASGARD] Got invalid asgard id (%d) for ifindex (%d) in function %s\n", asgard_id, ifindex, __FUNCTION__);
+		return -1;
+	}
+
+	if (!infos[asgard_id]) {
+		printk(KERN_INFO "[ASGARD] Allocation error in function %s\n", __FUNCTION__);
+		return -1;
+	}
+
+	if(infos[asgard_id]->asgard_alive) {
+		printk(KERN_INFO "[ASGARD] Asgard Kernel Module is still running - trying to force quit asgard now.. \n");
+
+		if(infos[asgard_id]->asgard_force_quit)
+			infos[asgard_id]->asgard_force_quit();
+		else
+			printk(KERN_INFO "[ASGARD] Force Quit Function was not set by ASGARD! \n");
+	}
+
+	kfree(infos[asgard_id]);
+
+	mlx5_devices--;
+
+	return 0;
+
+}
 
 int asgard_mlx5_con_register_device(int ifindex)
 {
@@ -221,6 +266,8 @@ void unregister_asgard(void)
 	for (i = 0; i < mlx5_devices; i++) {
 		infos[i]->asgard_post_ts = NULL;
 		infos[i]->asgard_post_payload = NULL;
+		infos[i]->asgard_force_quit = NULL;
+
 		infos[i]->asgard_alive = 0;
 	}
 }
