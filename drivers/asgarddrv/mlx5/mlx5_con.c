@@ -96,6 +96,7 @@ int asgard_mlx5_con_unregister_device(int ifindex)
 	return 0;
 
 }
+EXPORT_SYMBOL(asgard_mlx5_con_unregister_device);
 
 int asgard_mlx5_con_register_device(int ifindex)
 {
