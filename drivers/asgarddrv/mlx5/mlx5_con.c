@@ -62,11 +62,11 @@ int asgard_mlx5_con_unregister_device(int ifindex)
 
 
 	if(infos == NULL){
-		printk(KERN_ERR"[ASGARD] Connection Info is not setup..\n");
+		printk(KERN_ERR "[ASGARD] Connection Info is not setup..\n");
 		return -1;
 	}
 
-	printk(KERN_INFO"[ASGARD] Unregister mlx5 device with ifindex %d\n", ifindex, __FUNCTION__);
+	printk(KERN_INFO "[ASGARD] Unregister mlx5 device with ifindex %d\n", ifindex, __FUNCTION__);
 
 	asgard_id = get_asgard_id_by_ifindex(ifindex);
 
@@ -107,11 +107,11 @@ int asgard_mlx5_con_register_device(int ifindex)
 		return -1;
 	}
 
-	printk(KERN_INFO"[ASGARD] Registering new mlx5 device with ifindex %d\n", ifindex, __FUNCTION__);
+	printk(KERN_INFO"[ASGARD] Registering new mlx5 device with ifindex %d -  in function %s\n", ifindex, __FUNCTION__);
 
 	asgard_id = asgard_generate_next_id();
 
-	printk(KERN_INFO"[ASGARD] Assigned asgard_id %d to new mlx5 device\n", asgard_id, __FUNCTION__);
+	printk(KERN_INFO"[ASGARD] Assigned asgard_id %d to new mlx5 device - in function %s\n", asgard_id, __FUNCTION__);
 
 	if (asgard_id < 0)
 		return -1;

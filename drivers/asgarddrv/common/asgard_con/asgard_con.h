@@ -35,7 +35,8 @@ int asgard_mlx5_con_unregister_device(int ifindex);
 
 int register_asgard_at_nic(int asgard_id,
 				void (*asgard_post_ts)(int, uint64_t, int),
-				void (*asgard_post_payload)(int, void *, u16, u32));
+				void (*asgard_post_payload)(int, void *, u16, u32),
+				void (*asgard_force_quite)(void));
 				
 void unregister_asgard(void);
 
