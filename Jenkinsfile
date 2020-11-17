@@ -1,7 +1,7 @@
 
 pipeline {
 
-    agent any
+    agent {label 'asgard01-vm1'}
     stages {
         stage('Make asgard Kernel (deb pkg)') {
             steps {
