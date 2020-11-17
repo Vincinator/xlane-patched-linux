@@ -2,6 +2,11 @@
 pipeline {
 
     agent {label 'asgard01-vm1'}
+   
+    environment {
+        WEBHOOK           = credentials('Teams-WebHook-DevOps-Vincent')
+    }
+
     stages {
         stage('Make asgard Kernel (deb pkg)') {
             steps {
@@ -16,6 +21,8 @@ pipeline {
                 sh 'cp install_asgard_kernel.sh asgard-bin/'
                 archiveArtifacts 'asgard-bin/*.deb'
                 archiveArtifacts 'asgard-bin/*.sh'
+                office365ConnectorSend message: "Kernel Build successfully", webhookUrl: WEBHOOK
+
               }
         }
     }
