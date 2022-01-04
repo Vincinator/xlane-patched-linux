@@ -2,7 +2,7 @@
 VERSION = 5
 PATCHLEVEL = 10
 SUBLEVEL = 89
-EXTRAVERSION =
+EXTRAVERSION = -asgard-git-$(shell git rev-parse --short=12 HEAD)
 NAME = Dare mighty things
 
 # *DOCUMENTATION*
@@ -490,6 +490,7 @@ LINUXINCLUDE    := \
 		-I$(objtree)/arch/$(SRCARCH)/include/generated \
 		$(if $(building_out_of_srctree),-I$(srctree)/include) \
 		-I$(objtree)/include \
+		-I$(srctree)/drivers/asgarddrv/common \
 		$(USERINCLUDE)
 
 KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE

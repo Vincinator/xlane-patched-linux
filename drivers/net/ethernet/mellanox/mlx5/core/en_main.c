@@ -65,6 +65,8 @@
 #include "en/devlink.h"
 #include "lib/mlx5.h"
 
+#include <asgard_con/asgard_con.h>
+
 bool mlx5e_check_fragmented_striding_rq_cap(struct mlx5_core_dev *mdev)
 {
 	bool striding_rq_umr = MLX5_CAP_GEN(mdev, striding_rq) &&
@@ -1827,8 +1829,10 @@ static int mlx5e_set_tx_maxrate(struct net_device *dev, int index, u32 rate)
 }
 
 static int mlx5e_open_queues(struct mlx5e_channel *c,
+				 int ix,
 			     struct mlx5e_params *params,
-			     struct mlx5e_channel_param *cparam)
+			     struct mlx5e_channel_param *cparam,
+				 int asgard_channel)
 {
 	struct dim_cq_moder icocq_moder = {0, 0};
 	int err;
@@ -1884,6 +1888,10 @@ static int mlx5e_open_queues(struct mlx5e_channel *c,
 	err = mlx5e_open_rq(c, params, &cparam->rq, NULL, NULL, &c->rq);
 	if (err)
 		goto err_close_xdp_sq;
+
+	if(asgard_channel > 0) {
+		asgard_mlx5_con_register_channel(c->priv->mdev->asgard_id, ix, c->rq.cq.mcq.cqn, c, asgard_channel);
+	}
 
 	err = mlx5e_open_xdpsq(c, params, &cparam->xdp_sq, NULL, &c->xdpsq, true);
 	if (err)
@@ -1961,7 +1969,8 @@ static int mlx5e_open_channel(struct mlx5e_priv *priv, int ix,
 			      struct mlx5e_params *params,
 			      struct mlx5e_channel_param *cparam,
 			      struct xsk_buff_pool *xsk_pool,
-			      struct mlx5e_channel **cp)
+			      struct mlx5e_channel **cp,
+				  int asgard_channel)
 {
 	int cpu = cpumask_first(mlx5_comp_irq_get_affinity_mask(priv->mdev, ix));
 	struct net_device *netdev = priv->netdev;
@@ -1993,8 +2002,8 @@ static int mlx5e_open_channel(struct mlx5e_priv *priv, int ix,
 	c->lag_port = mlx5e_enumerate_lag_port(priv->mdev, ix);
 
 	netif_napi_add(netdev, &c->napi, mlx5e_napi_poll, 64);
-
-	err = mlx5e_open_queues(c, params, cparam);
+    
+	err = mlx5e_open_queues(c, ix, params, cparam, asgard_channel);
 	if (unlikely(err))
 		goto err_napi_del;
 
@@ -2371,7 +2380,16 @@ int mlx5e_open_channels(struct mlx5e_priv *priv,
 		if (chs->params.xdp_prog)
 			xsk_pool = mlx5e_xsk_get_pool(&chs->params, chs->params.xsk, i);
 
-		err = mlx5e_open_channel(priv, i, &chs->params, cparam, xsk_pool, &chs->c[i]);
+		if(chs->num - 1 == i) {
+			err = mlx5e_open_channel(priv, i, &chs->params, cparam, xsk_pool, &chs->c[i], 1); // (sync) default channel
+		} else if(chs->num - 3 == i) {
+			err = mlx5e_open_channel(priv, i, &chs->params, cparam, xsk_pool, &chs->c[i], 2); // leader channel
+		} else if(chs->num - 5 == i) {
+			err = mlx5e_open_channel(priv, i, &chs->params, cparam, xsk_pool, &chs->c[i], 3); // echo channel
+		} else {
+			err = mlx5e_open_channel(priv, i, &chs->params, cparam, xsk_pool, &chs->c[i], 0); // (async) default channel
+		}
+
 		if (err)
 			goto err_close_channels;
 	}
@@ -5157,6 +5175,7 @@ static int mlx5e_nic_init(struct mlx5_core_dev *mdev,
 
 static void mlx5e_nic_cleanup(struct mlx5e_priv *priv)
 {
+	asgard_mlx5_con_unregister_device(priv->netdev->ifindex);
 	mlx5e_health_destroy_reporters(priv);
 	mlx5e_devlink_port_unregister(priv);
 	mlx5e_tls_cleanup(priv);
@@ -5608,6 +5627,9 @@ static void *mlx5e_add(struct mlx5_core_dev *mdev)
 	}
 
 	mlx5e_devlink_port_type_eth_set(priv);
+
+	/* Register MLX5 Driver at ASGARD */
+	mdev->asgard_id = asgard_mlx5_con_register_device(netdev->ifindex);
 
 	mlx5e_dcbnl_init_app(priv);
 	return priv;
