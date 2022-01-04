@@ -1,0 +1,5 @@
+# ASGARD Driver 
+
+config ASGARD_DRV
+	bool "Enables the ASGARD Driver"
+	default y

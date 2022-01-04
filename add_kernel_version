@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+
+from subprocess import call
+import argparse
+import os
+import multiprocessing
+import configparser
+import fileinput
+import re
+import shutil
+
+base_repo_string = 'kernel'
+
+
+def get_version_tuple(kernelversion):
+	reg = re.compile('^v([0-9]+)([.])(([0-9]+)(([.])([0-9]+))?)$')
+	result = reg.search(kernelversion)
+	main_v = result.group(1)
+	extracted_v = result.group(3)
+	return main_v, extracted_v
+
+def validate_kernelversion_string(kernelversion):
+	reg = re.compile('^v([0-9]+)([.])([0-9]+)(([.])([0-9]+))?$')
+	return reg.findall(kernelversion)
+
+
+def repo_contains(kernelversion):
+	if os.system('git rev-parse --verify {0}/{1} > /dev/null 2>&1'.format(base_repo_string, kernelversion)) == 0:
+		return True
+	return False
+
+def version_exists(kernelversion):
+	v = get_version_tuple(kernelversion)
+	return os.system("wget -S --spider https://cdn.kernel.org/pub/linux/kernel/v{0}.x/linux-{0}.{1}.tar.xz 2>&1 | grep 'HTTP/1.1 200 OK'".format(v[0],v[1])) == 0
+
+def create_vanilla_branch(kernelversion):
+	return os.system('git checkout --orphan {0}/{1}'.format(base_repo_string, kernelversion)) == 0
+
+
+def download_kernel(kernelversion):
+	v = get_version_tuple(kernelversion)
+	return os.system('wget https://cdn.kernel.org/pub/linux/kernel/v{0}.x/linux-{0}.{1}.tar.xz 2>&1'.format(v[0],v[1])) == 0
+
+def unpack_tar(kernelversion):
+	v = get_version_tuple(kernelversion)
+	return os.system('tar xvJf linux-{0}.{1}.tar.xz --strip-components 1'.format(v[0],v[1])) == 0
+
+def remove_files(kernelversion):
+	v = get_version_tuple(kernelversion)
+	return os.system('rm linux-{0}.{1}.tar.xz '.format(v[0],v[1])) == 0
+
+def sync_repo(kernelversion):
+	return os.system('git add . && git commit -m "init {0}" && git push --set-upstream origin {1}/{0}'.format(kernelversion, base_repo_string)) == 0
+
+
+def main():
+	config = configparser.ConfigParser()
+	parser = argparse.ArgumentParser()
+
+	parser.add_argument('--kernel', metavar='kernel', help='version to add to this repo')
+
+	args = parser.parse_args()
+
+	if args.kernel is not None and validate_kernelversion_string(args.kernel):
+		if repo_contains(args.kernel):
+			print("{0} was already added to this kernel".format(args.kernel))
+			return
+		if not version_exists(args.kernel):
+			print("{0} does not exist".format(args.kernel))
+			return
+		create_vanilla_branch(args.kernel)
+		download_kernel(args.kernel)
+		unpack_tar(args.kernel)
+		remove_files(args.kernel)
+		sync_repo(args.kernel)
+
+
+	else:
+		print("Use the following Kernel Version Format: v0.0.0 or v0.0")
+
+if __name__ == '__main__':
+    main()
